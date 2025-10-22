@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Alumnos - Instituto Nacional de Administraciones Públicas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a4d7c 0%, #2563a8 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .header-content p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .breadcrumb {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .course-selector {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .course-selector h2 {
+            color: #1a4d7c;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #2563a8;
+            padding-bottom: 0.5rem;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .course-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .course-card:hover {
+            border-color: #2563a8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 168, 0.15);
+        }
+
+        .course-card.active {
+            border-color: #2563a8;
+            background: #e3f2fd;
+        }
+
+        .course-card h3 {
+            color: #1a4d7c;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .course-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .students-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .students-section.active {
+            display: block;
+        }
+
+        .students-section h2 {
+            color: #1a4d7c;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #2563a8;
+            padding-bottom: 0.5rem;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .student-table thead {
+            background: #1a4d7c;
+            color: white;
+        }
+
+        .student-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .student-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .student-table tbody tr {
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .student-table tbody tr:hover {
+            background: #f5f9ff;
+        }
+
+        .student-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #2563a8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 18px;
+        }
+
+        .student-name {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .student-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .student-info strong {
+            color: #1a4d7c;
+            font-size: 0.95rem;
+        }
+
+        .student-info span {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 900px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1a4d7c 0%, #2563a8 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .close-modal:hover {
+            opacity: 1;
+        }
+
+        .modal-profile {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .modal-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .modal-basic-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-basic-info p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .info-section {
+            margin-bottom: 2rem;
+        }
+
+        .info-section h3 {
+            color: #1a4d7c;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-item label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+
+        .info-item span {
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .links-section a {
+            display: inline-block;
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #e3f2fd;
+            color: #2563a8;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .links-section a:hover {
+            background: #2563a8;
+            color: white;
+        }
+
+        footer {
+            background: #1a1a1a;
+            color: #ccc;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Instituto Nacional de Administraciones Públicas</h1>
+            <p>Portal de Alumnos - Cursos de Formación</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="#">Inicio</a> / <span>Alumnos Matriculados</span>
+        </div>
+
+        <div class="course-selector">
+            <h2>Seleccione un Curso</h2>
+            <div class="course-grid" id="courseGrid"></div>
+        </div>
+
+        <div class="students-section" id="studentsSection">
+            <h2 id="courseTitle">Alumnos Matriculados</h2>
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th>Alumno</th>
+                        <th>Correo Electrónico</th>
+                        <th>Organismo</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+                <div class="modal-profile">
+                    <div id="modalAvatar" class="modal-avatar"></div>
+                    <div class="modal-basic-info">
+                        <h2 id="modalName"></h2>
+                        <p id="modalPosition"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="info-section">
+                    <h3>Información de Contacto</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Correo Electrónico</label>
+                            <span id="modalEmail"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Teléfono</label>
+                            <span id="modalPhone"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Organismo</label>
+                            <span id="modalOrganismo"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h3>Perfil Profesional</h3>
+                    <p id="modalBio"></p>
+                </div>
+                <div class="info-section">
+                    <h3>Experiencia</h3>
+                    <div id="modalExperience"></div>
+                </div>
+                <div class="info-section links-section">
+                    <h3>Enlaces de Interés</h3>
+                    <div id="modalLinks"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Instituto Nacional de Administraciones Públicas</p>
+    </footer>
+
+    <script>
+        const avatarColors = ['#1a4d7c', '#2563a8', '#3b82f6', '#60a5fa', '#93c5fd', '#8b5cf6', '#ec4899', '#f59e0b'];
+
+        function getAvatarColor(seed) {
+            return avatarColors[seed % avatarColors.length];
+        }
+
+        function getInitial(name) {
+            return name.charAt(0).toUpperCase();
+        }
+
+        const courses = [
+            { id: 1, name: 'Programación con Inteligencia Artificial', code: 'PCIA-2025', students: 5 },
+            { id: 2, name: 'Desarrollo Web con JavaScript Avanzado', code: 'DWJA-2025', students: 6 },
+            { id: 3, name: 'Ciberseguridad para Administraciones', code: 'CSAD-2025', students: 5 },
+            { id: 4, name: 'Transformación Digital', code: 'TDAP-2025', students: 7 },
+            { id: 5, name: 'Gestión de Bases de Datos', code: 'GBD-2025', students: 6 },
+            { id: 6, name: 'Administración de Sistemas Linux', code: 'ASL-2025', students: 5 }
+        ];
+
+        const studentsData = {
+            1: [
+                { id: 1, name: 'María', surname: 'González', email: 'maria.gonzalez@minhap.es', organismo: 'Ministerio de Hacienda', avatarSeed: 0, phone: '+34 910 123 456', position: 'Data Scientist', bio: 'Especialista en inteligencia artificial aplicada al sector público con más de 8 años de experiencia.', experience: ['Data Scientist Senior (2020-actualidad)', 'Analista de IA (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 2, name: 'Carlos', surname: 'Martínez', email: 'carlos.martinez@seg-social.es', organismo: 'Seguridad Social', avatarSeed: 1, phone: '+34 915 234 567', position: 'Ingeniero ML', bio: 'Profesional especializado en desarrollo de soluciones de IA para procesos administrativos.', experience: ['ML Engineer (2019-actualidad)', 'Desarrollador AI (2016-2019)'], links: [{ text: 'GitHub', url: '#' }] },
+                { id: 3, name: 'Ana', surname: 'Rodríguez', email: 'ana.rodriguez@educacion.gob.es', organismo: 'Ministerio de Educación', avatarSeed: 2, phone: '+34 917 345 678', position: 'Responsable IA Educativa', bio: 'Lidera proyectos de implementación de IA en plataformas educativas.', experience: ['Responsable IA (2020-actualidad)', 'Consultora Tech (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 4, name: 'David', surname: 'López', email: 'david.lopez@interior.es', organismo: 'Ministerio del Interior', avatarSeed: 3, phone: '+34 912 456 789', position: 'Especialista Computer Vision', bio: 'Experto en visión por computador aplicado a sistemas de seguridad pública.', experience: ['CV Engineer (2018-actualidad)', 'Investigador IA (2015-2018)'], links: [{ text: 'GitHub', url: '#' }] },
+                { id: 5, name: 'Laura', surname: 'Sánchez', email: 'laura.sanchez@justicia.es', organismo: 'Ministerio de Justicia', avatarSeed: 4, phone: '+34 913 567 890', position: 'Arquitecta Soluciones IA', bio: 'Arquitecta especializada en diseño de sistemas inteligentes para administración de justicia.', experience: ['Arquitecta IA (2019-actualidad)', 'Tech Lead (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] }
+            ],
+            2: [
+                { id: 6, name: 'Ramón', surname: 'López', email: 'ramon.lopez@interior.es', organismo: 'Ministerio del Interior', avatarSeed: 0, phone: '+34 912 456 789', position: 'Desarrollador Full Stack', bio: 'Desarrollador especializado en aplicaciones web modernas para administración pública.', experience: ['Full Stack (2017-actualidad)', 'Frontend Dev (2015-2017)'], links: [{ text: 'GitHub', url: '#' }] },
+                { id: 7, name: 'Isabel', surname: 'Sánchez', email: 'isabel.sanchez@justicia.es', organismo: 'Ministerio de Justicia', avatarSeed: 1, phone: '+34 913 567 890', position: 'Ingeniera Software', bio: 'Ingeniera con enfoque en desarrollo de sistemas judiciales electrónicos.', experience: ['Ingeniera Senior (2019-actualidad)', 'Backend Dev (2016-2019)'], links: [{ text: 'Portfolio', url: '#' }] },
+                { id: 8, name: 'Francisco', surname: 'Herrera', email: 'francisco.herrera@minhap.es', organismo: 'Ministerio de Hacienda', avatarSeed: 2, phone: '+34 914 123 789', position: 'Frontend Developer', bio: 'Especialista en interfaces modernas y accesibles. Experto en Vue.js y React.', experience: ['Frontend Dev (2018-actualidad)', 'Web Designer (2016-2018)'], links: [{ text: 'CodePen', url: '#' }] },
+                { id: 9, name: 'Teresa', surname: 'Vega', email: 'teresa.vega@educacion.gob.es', organismo: 'Ministerio de Educación', avatarSeed: 3, phone: '+34 915 234 890', position: 'Backend Developer', bio: 'Desarrolladora backend especializada en APIs REST y microservicios.', experience: ['Backend Senior (2019-actualidad)', 'Full Stack (2016-2019)'], links: [{ text: 'GitHub', url: '#' }] },
+                { id: 10, name: 'Antonio', surname: 'Campos', email: 'antonio.campos@cultura.es', organismo: 'Ministerio de Cultura', avatarSeed: 4, phone: '+34 916 345 901', position: 'JavaScript Architect', bio: 'Arquitecto de software con foco en soluciones JavaScript escalables.', experience: ['Architect (2020-actualidad)', 'Tech Lead (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 11, name: 'Beatriz', surname: 'Molina', email: 'beatriz.molina@sanidad.es', organismo: 'Ministerio de Sanidad', avatarSeed: 5, phone: '+34 917 456 012', position: 'Full Stack Developer', bio: 'Desarrolladora full stack con experiencia en sistemas sanitarios. Stack MERN.', experience: ['Full Stack (2018-actualidad)', 'Junior Dev (2016-2018)'], links: [{ text: 'Portfolio', url: '#' }] }
+            ],
+            3: [
+                { id: 12, name: 'Alberto', surname: 'Fernández', email: 'alberto.fernandez@cni.es', organismo: 'CNI', avatarSeed: 0, phone: '+34 914 678 901', position: 'Analista Ciberseguridad', bio: 'Especialista en seguridad informática. Certificaciones CISSP y CEH.', experience: ['Analista Senior (2018-actualidad)', 'Consultor (2015-2018)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 13, name: 'Patricia', surname: 'García', email: 'patricia.garcia@defensa.es', organismo: 'Ministerio de Defensa', avatarSeed: 1, phone: '+34 915 789 012', position: 'Experta Seguridad Redes', bio: 'Especializada en protección de infraestructuras críticas.', experience: ['Experta Seguridad (2020-actualidad)', 'Analista (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 14, name: 'Manuel', surname: 'Ortiz', email: 'manuel.ortiz@interior.es', organismo: 'Ministerio del Interior', avatarSeed: 2, phone: '+34 916 890 123', position: 'Pentester', bio: 'Especialista en pruebas de penetración y ethical hacking. OSCP y CEH.', experience: ['Pentester Senior (2019-actualidad)', 'Security Analyst (2016-2019)'], links: [{ text: 'GitHub', url: '#' }] },
+                { id: 15, name: 'Silvia', surname: 'Ramos', email: 'silvia.ramos@cnpic.es', organismo: 'CNPIC', avatarSeed: 3, phone: '+34 917 901 234', position: 'SOC Manager', bio: 'Gestiona operaciones de seguridad para infraestructuras críticas.', experience: ['SOC Manager (2020-actualidad)', 'Security Eng (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 16, name: 'Roberto', surname: 'Delgado', email: 'roberto.delgado@cni.es', organismo: 'CNI', avatarSeed: 4, phone: '+34 918 012 345', position: 'Threat Intelligence', bio: 'Analista especializado en inteligencia de amenazas y análisis forense.', experience: ['Threat Analyst (2019-actualidad)', 'Forensic (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] }
+            ],
+            4: [
+                { id: 17, name: 'Fernando', surname: 'Jiménez', email: 'fernando.jimenez@minhap.es', organismo: 'Ministerio de Hacienda', avatarSeed: 0, phone: '+34 910 234 567', position: 'Director Transformación', bio: 'Lidera iniciativas de transformación digital en administración tributaria.', experience: ['Director (2020-actualidad)', 'CIO (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 18, name: 'Carmen', surname: 'Iglesias', email: 'carmen.iglesias@educacion.gob.es', organismo: 'Ministerio de Educación', avatarSeed: 1, phone: '+34 911 345 678', position: 'Responsable Innovación', bio: 'Responsable de proyectos de innovación tecnológica educativa.', experience: ['Responsable (2019-actualidad)', 'PM (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 19, name: 'Ignacio', surname: 'Vargas', email: 'ignacio.vargas@seg-social.es', organismo: 'Seguridad Social', avatarSeed: 2, phone: '+34 912 456 789', position: 'Jefe Servicios Digitales', bio: 'Gestiona servicios digitales para ciudadanía en Seguridad Social.', experience: ['Jefe (2020-actualidad)', 'Coordinador (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 20, name: 'Raquel', surname: 'Serrano', email: 'raquel.serrano@sanidad.es', organismo: 'Ministerio de Sanidad', avatarSeed: 3, phone: '+34 913 567 890', position: 'Arquitecta Sistemas', bio: 'Diseña arquitecturas para sistemas de información sanitaria.', experience: ['Arquitecta (2019-actualidad)', 'Analyst (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 21, name: 'Víctor', surname: 'Molina', email: 'victor.molina@justicia.es', organismo: 'Ministerio de Justicia', avatarSeed: 4, phone: '+34 914 678 901', position: 'Consultor Digitalización', bio: 'Consultor especializado en procesos de digitalización judicial.', experience: ['Consultor Senior (2020-actualidad)', 'Analista (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 22, name: 'Alicia', surname: 'Romero', email: 'alicia.romero@cultura.es', organismo: 'Ministerio de Cultura', avatarSeed: 5, phone: '+34 915 789 012', position: 'Coordinadora Digital', bio: 'Coordina proyectos de transformación digital en patrimonio cultural.', experience: ['Coordinadora (2019-actualidad)', 'Tech Lead (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 23, name: 'Marcos', surname: 'Gil', email: 'marcos.gil@fomento.es', organismo: 'Ministerio de Transportes', avatarSeed: 6, phone: '+34 916 890 123', position: 'Jefe Proyecto Smart City', bio: 'Lidera proyectos de ciudades inteligentes y movilidad sostenible.', experience: ['Jefe Proyecto (2020-actualidad)', 'PM (2017-2020)'], links: [{ text: 'LinkedIn', url: '#' }] }
+            ],
+            5: [
+                { id: 24, name: 'Cristina', surname: 'Moreno', email: 'cristina.moreno@sanidad.es', organismo: 'Ministerio de Sanidad', avatarSeed: 0, phone: '+34 917 901 234', position: 'DBA Senior', bio: 'Administradora de bases de datos especializada en sistemas sanitarios.', experience: ['DBA Senior (2018-actualidad)', 'DBA (2014-2018)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 25, name: 'Pablo', surname: 'Navarro', email: 'pablo.navarro@ine.es', organismo: 'INE', avatarSeed: 1, phone: '+34 918 012 345', position: 'Arquitecto Datos', bio: 'Arquitecto de datos para sistemas estadísticos nacionales.', experience: ['Arquitecto (2019-actualidad)', 'Data Eng (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 26, name: 'Rosa', surname: 'Domínguez', email: 'rosa.dominguez@minhap.es', organismo: 'Ministerio de Hacienda', avatarSeed: 2, phone: '+34 919 123 456', position: 'Especialista SQL', bio: 'Especialista en optimización de consultas y rendimiento de BD.', experience: ['Especialista (2018-actualidad)', 'DBA Junior (2015-2018)'], links: [{ text: 'GitHub', url: '#' }] },
+                { id: 27, name: 'Adrián', surname: 'Soto', email: 'adrian.soto@educacion.gob.es', organismo: 'Ministerio de Educación', avatarSeed: 3, phone: '+34 910 234 567', position: 'Ingeniero Datos', bio: 'Ingeniero de datos especializado en ETL y data warehousing.', experience: ['Data Engineer (2019-actualidad)', 'Analyst (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 28, name: 'Lucía', surname: 'Castillo', email: 'lucia.castillo@seg-social.es', organismo: 'Seguridad Social', avatarSeed: 4, phone: '+34 911 345 678', position: 'Administradora BD', bio: 'Administra bases de datos Oracle y PostgreSQL para prestaciones.', experience: ['DBA (2018-actualidad)', 'Junior DBA (2015-2018)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 29, name: 'Jorge', surname: 'Cabrera', email: 'jorge.cabrera@justicia.es', organismo: 'Ministerio de Justicia', avatarSeed: 5, phone: '+34 912 456 789', position: 'Database Engineer', bio: 'Ingeniero especializado en diseño y mantenimiento de bases de datos judiciales.', experience: ['DB Engineer (2019-actualidad)', 'Developer (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] }
+            ],
+            6: [
+                { id: 30, name: 'Miguel', surname: 'Torres', email: 'miguel.torres@cultura.es', organismo: 'Ministerio de Cultura', avatarSeed: 0, phone: '+34 918 567 123', position: 'Sysadmin Linux', bio: 'Administrador de sistemas con experiencia en entornos Linux y virtualización.', experience: ['Sysadmin Senior (2015-actualidad)', 'Técnico (2012-2015)'], links: [{ text: 'GitHub', url: '#' }] },
+                { id: 31, name: 'Sandra', surname: 'Pérez', email: 'sandra.perez@defensa.es', organismo: 'Ministerio de Defensa', avatarSeed: 1, phone: '+34 919 678 234', position: 'DevOps Engineer', bio: 'Ingeniera DevOps especializada en automatización y contenedores.', experience: ['DevOps (2018-actualidad)', 'Sysadmin (2015-2018)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 32, name: 'Ricardo', surname: 'Blanco', email: 'ricardo.blanco@interior.es', organismo: 'Ministerio del Interior', avatarSeed: 2, phone: '+34 910 789 345', position: 'Arquitecto Infraestructura', bio: 'Arquitecto de infraestructuras cloud y on-premise basadas en Linux.', experience: ['Arquitecto (2019-actualidad)', 'Senior Sysadmin (2016-2019)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 33, name: 'Nuria', surname: 'Medina', email: 'nuria.medina@ine.es', organismo: 'INE', avatarSeed: 3, phone: '+34 911 890 456', position: 'Administradora Sistemas', bio: 'Administra servidores Linux para procesamiento de datos estadísticos.', experience: ['Sysadmin (2017-actualidad)', 'Técnico Soporte (2014-2017)'], links: [{ text: 'LinkedIn', url: '#' }] },
+                { id: 34, name: 'Ángel', surname: 'Ruiz', email: 'angel.ruiz@sanidad.es', organismo: 'Ministerio de Sanidad', avatarSeed: 4, phone: '+34 912 901 567', position: 'Ingeniero Cloud', bio: 'Ingeniero especializado en cloud computing y alta disponibilidad en Linux.', experience: ['Cloud Engineer (2019-actualidad)', 'Sysadmin (2016-2019)'], links: [{ text: 'GitHub', url: '#' }] }
+            ]
+        };
+
+        function renderCourses() {
+            const grid = document.getElementById('courseGrid');
+            grid.innerHTML = courses.map(course => `
+                <div class="course-card" onclick="selectCourse(${course.id})">
+                    <h3>${course.name}</h3>
+                    <p><strong>Código:</strong> ${course.code}</p>
+                    <p><strong>Alumnos matriculados:</strong> ${course.students}</p>
+                </div>
+            `).join('');
+        }
+
+        function selectCourse(courseId) {
+            document.querySelectorAll('.course-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.course-card').classList.add('active');
+
+            const course = courses.find(c => c.id === courseId);
+            const students = studentsData[courseId] || [];
+
+            document.getElementById('courseTitle').textContent = `Alumnos Matriculados - ${course.name}`;
+            
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = students.map(student => {
+                const avatarColor = getAvatarColor(student.avatarSeed);
+                const initial = getInitial(student.name);
+                return `
+                    <tr onclick="showStudentDetail(${courseId}, ${student.id})">
+                        <td>
+                            <div class="student-name">
+                                <div class="student-avatar" style="background-color: ${avatarColor}">
+                                    ${initial}
+                                </div>
+                                <div class="student-info">
+                                    <strong>${student.name} ${student.surname}</strong>
+                                    <span>${student.position}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${student.email}</td>
+                        <td>${student.organismo}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('studentsSection').classList.add('active');
+        }
+
+        function showStudentDetail(courseId, studentId) {
+            const student = studentsData[courseId].find(s => s.id === studentId);
+            
+            const avatarColor = getAvatarColor(student.avatarSeed);
+            const initial = getInitial(student.name);
+            
+            const modalAvatar = document.getElementById('modalAvatar');
+            modalAvatar.style.backgroundColor = avatarColor;
+            modalAvatar.textContent = initial;
+            
+            document.getElementById('modalName').textContent = `${student.name} ${student.surname}`;
+            document.getElementById('modalPosition').textContent = student.position;
+            document.getElementById('modalEmail').textContent = student.email;
+            document.getElementById('modalPhone').textContent = student.phone;
+            document.getElementById('modalOrganismo').textContent = student.organismo;
+            document.getElementById('modalBio').textContent = student.bio;
+            
+            document.getElementById('modalExperience').innerHTML = 
+                student.experience.map(exp => `<p>• ${exp}</p>`).join('');
+            
+            document.getElementById('modalLinks').innerHTML = 
+                student.links.map(link => `<a href="${link.url}" target="_blank">${link.text}</a>`).join('');
+
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').classList.remove('active');
+        }
+
+        document.getElementById('studentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        renderCourses();
+    </script>
